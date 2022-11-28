@@ -6,7 +6,7 @@ def setup(FILENAME):
         if TEXTLIST[i][-1] == "\n":
             TEXTLIST[i] = TEXTLIST[i][:-1]
         TEXTLIST[i] = TEXTLIST[i].split(',')
-        if len(TEXTLIST[i]) > 19:
+        while len(TEXTLIST[i]) > 19:
             TEXTLIST[i][17] = ",".join([TEXTLIST[i][j] for j in [17, 18]])
             TEXTLIST[i].pop(18)
     return TEXTLIST
