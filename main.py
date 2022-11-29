@@ -68,20 +68,34 @@ def setupAll(DATABASE):
                 id INTEGER PRIMARY KEY
                 area_of_park TEXT NOT NULL,
                 population_year INTEGER NOT NULL,
-                survey_year INTEGER
-                survey_month INTEGER,
-                survey_day INTEGER,
+                survey_year TEXT NOT NULL,
+                survey_month TEXT NOT NULL,
+                survey_day TEXT NOT NULL,
                 species_name TEXT NOT NULL,
-                unknown_age_sex INTEGER,
-                adult_male_count INTEGER,
-                adult_female_count INTEGER,
-                adult_unknown_count INTEGER,
-                yearling_count INTEGER,
-                calf_count INTEGER,
-                survey_total INTEGER,
-                sightability_coor
-                
+                unknown_age_sex TEXT NOT NULL,
+                adult_male_count TEXT NOT NULL,
+                adult_female_count TEXT NOT NULL,
+                adult_unknown_count TEXT NOT NULL,
+                yearling_count TEXT NOT NULL,
+                calf_count TEXT NOT NULL,
+                survey_total TEXT NOT NULL,
+                sightability_correction TEXT NOT NULL,
+                additional_captive_count TEXT NOT NULL,
+                animals_removed_prior TEXT NOT NULL, 
+                fall_population INTEGER,
+                comment TEXT,
+                estimate_method TEXT NOT NULL
+                )
     ;""")
+    for i in range(1, len(DATABASE)):
+        INFO = [i, DATABASE[i]]
+        CURSOR.execute("""
+            INSERT INTO
+                Population_data
+            VALUES (
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        ;""", INFO)
+        CONNECTION.commit()
 # -- OUTPUTS -- #
 
 # --- VARIABLE --- #
@@ -99,7 +113,7 @@ if __name__ == "__main__":
         DATABASE = print(setup("Elk_Island_NP_Grassland_Forest_Ungulate_Population_1906-2017_data_reg.txt"))
         setupAll(DATABASE)
     CHOICE = askChoice()
-    if CHOICE == 1:
+
 
 
 
