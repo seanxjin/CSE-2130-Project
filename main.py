@@ -53,6 +53,17 @@ def setup(FILENAME):
         if len(TEXTLIST[i]) > 1:
             TEXTLIST[i][0] = TEXTLIST[i][0].split(',')
             TEXTLIST[i][0].pop(-1)
+            COMMENT = TEXTLIST[i].pop(1)
+            EXPERIMENT = TEXTLIST[i].pop(1)
+            TEXTLIST[i][0].append(COMMENT)
+            TEXTLIST[i][0].append(EXPERIMENT)
+            TEXTLIST[i] = TEXTLIST[i][0]
+            if TEXTLIST[i][-1][0] == ",":
+                TEXTLIST[i][-1] = TEXTLIST[i][-1][1:]
+        elif len(TEXTLIST[i]) == 1:
+            for j in range(len(TEXTLIST[i])):
+                TEXTLIST[i][j] = TEXTLIST[i][j].split(',')
+                TEXTLIST[i] = TEXTLIST[i][0]
     return TEXTLIST
 def setupAll(DATABASE):
     """
