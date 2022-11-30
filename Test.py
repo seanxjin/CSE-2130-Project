@@ -1,16 +1,49 @@
-def setup(FILENAME):
-    FILE = open(FILENAME)
-    TEXTLIST = FILE.readlines()
-    FILE.close()
-    for i in range(len(TEXTLIST)):
-        if TEXTLIST[i][-1] == "\n":
-            TEXTLIST[i] = TEXTLIST[i][:-1]
-        TEXTLIST[i] = TEXTLIST[i].split(',')
-        while len(TEXTLIST[i]) > 19:
-            for j in range(TEXTLIST[i]):
-                if "" in TEXTLIST[i][j]:
-                    TEXTLIST[i][17] = ",".join([TEXTLIST[i][j] for j in [17, 18]])
-                    TEXTLIST[i].pop(18)
-    return TEXTLIST
+import sqlite3
 
-print(setup("Elk_Island_NP_Grassland_Forest_Ungulate_Population_1906-2017_data_reg.txt"))
+FILE = "blah.db"
+CONNECTION = sqlite3.connect(FILE)
+CURSOR = CONNECTION.cursor()
+CURSOR.execute("""
+    CREATE TABLE 
+        student (
+            first_name TEXT,
+            last_name TEXT,
+            num INTEGER
+            )
+;""")
+
+CURSOR.execute("""
+    INSERT INTO
+        student
+    VALUES (
+        "Sean", "Jin", 3
+    )
+;""")
+CONNECTION.commit()
+CURSOR.execute("""
+    INSERT INTO
+        student
+    VALUES (
+        "Sean", "FIZ", 3
+    )
+;""")
+CONNECTION.commit()
+CURSOR.execute("""
+    INSERT INTO
+        student
+    VALUES (
+        "Sean", "HEHE", 3
+    )
+;""")
+CONNECTION.commit()
+
+print(CURSOR.execute ("""
+    SELECT
+        *
+    FROM
+        student
+    ORDER BY
+        last_name
+    LIMIT
+        2
+;""").fetchall())

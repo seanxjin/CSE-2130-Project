@@ -65,7 +65,7 @@ def setupAll(DATABASE):
     CURSOR.execute("""
         CREATE TABLE
             Population_data (
-                id INTEGER PRIMARY KEY
+                id INTEGER PRIMARY KEY,
                 area_of_park TEXT NOT NULL,
                 population_year INTEGER NOT NULL,
                 survey_year TEXT NOT NULL,
@@ -88,14 +88,34 @@ def setupAll(DATABASE):
                 )
     ;""")
     for i in range(1, len(DATABASE)):
-        INFO = [i, DATABASE[i]]
         CURSOR.execute("""
             INSERT INTO
-                Population_data
+                Population_data (
+                    area_of_park,
+                    population_year,
+                    survey_year,
+                    survey_month,
+                    survey_day,
+                    species_name,
+                    unknown_age_sex,
+                    adult_male_count,
+                    adult_female_count,
+                    adult_unknown_count,
+                    yearling_count,
+                    calf_count,
+                    survey_total,
+                    sightability_correction,
+                    additional_captive_count,
+                    animals_removed_prior, 
+                    fall_population,
+                    comment,
+                    estimate_method
+                    )
             VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-        ;""", INFO)
-        CONNECTION.commit()
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                )
+        ;""", DATABASE[i])
+    CONNECTION.commit()
 # -- OUTPUTS -- #
 
 # --- VARIABLE --- #
@@ -110,7 +130,7 @@ CURSOR = CONNECTION.cursor()
 
 if __name__ == "__main__":
     if FIRST_RUN:
-        DATABASE = print(setup("Elk_Island_NP_Grassland_Forest_Ungulate_Population_1906-2017_data_reg.txt"))
+        DATABASE = setup("Elk_Island_NP_Grassland_Forest_Ungulate_Population_1906-2017_data_reg.txt")
         setupAll(DATABASE)
     CHOICE = askChoice()
 
