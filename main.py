@@ -45,15 +45,14 @@ def setup(FILENAME):
     TEXTLIST = FILE.readlines()
     FILE.close()
     for i in range(len(TEXTLIST)):
+        if i == 422:
+            print("Stop")
         if TEXTLIST[i][-1] == "\n":
             TEXTLIST[i] = TEXTLIST[i][:-1]
-        TEXTLIST[i] = TEXTLIST[i].split(',')
-        while len(TEXTLIST[i]) > 19:
-            TEXTLIST[i][17] = ",".join([TEXTLIST[i][j] for j in [17, 18]])
-            TEXTLIST[i].pop(18)
-        for j in range(len(TEXTLIST[i])):
-            if TEXTLIST[i][j].isnumeric():
-                TEXTLIST[i][j] = int(TEXTLIST[i][j])
+        TEXTLIST[i] = TEXTLIST[i].split('"')
+        if len(TEXTLIST[i]) > 1:
+            TEXTLIST[i][0] = TEXTLIST[i][0].split(',')
+            TEXTLIST[i][0].pop(-1)
     return TEXTLIST
 def setupAll(DATABASE):
     """
@@ -130,9 +129,11 @@ CURSOR = CONNECTION.cursor()
 
 if __name__ == "__main__":
     if FIRST_RUN:
-        DATABASE = setup("Elk_Island_NP_Grassland_Forest_Ungulate_Population_1906-2017_data_reg.txt")
-        setupAll(DATABASE)
-    CHOICE = askChoice()
+        pass
+    DATABASE = setup("Elk_Island_NP_Grassland_Forest_Ungulate_Population_1906-2017_data_reg.txt")
+    print(DATABASE)
+
+
 
 
 
