@@ -34,6 +34,22 @@ Please choose an option:
         print("Please enter a possible value!")
         return askChoice()
     return CHOICE
+def askInfo():
+    """
+    Asks the user for the start year, end year, and animal
+    :return: str, int
+    """
+    START_YR = input("Start Year? ")
+    END_YR = input("End Year? ")
+    ANIMAL = input("Bison (1), Elk (2), Moose (3), Deer (4), or All (5)? ")
+    try:
+        START_YR = int(START_YR)
+        END_YR = int(END_YR)
+        ANIMAL = int(ANIMAL)
+    except ValueError:
+        print("Please enter viable values.")
+        return askInfo()
+    return START_YR, END_YR, ANIMAL
 # -- PROCESSING -- #
 def setup(FILENAME):
     """
@@ -45,8 +61,6 @@ def setup(FILENAME):
     TEXTLIST = FILE.readlines()
     FILE.close()
     for i in range(len(TEXTLIST)):
-        if i == 422:
-            print("Stop")
         if TEXTLIST[i][-1] == "\n":
             TEXTLIST[i] = TEXTLIST[i][:-1]
         TEXTLIST[i] = TEXTLIST[i].split('"')
@@ -126,6 +140,36 @@ def setupAll(DATABASE):
                 )
         ;""", DATABASE[i])
     CONNECTION.commit()
+def findValues(START_YR, END_YR, ANIMAL):
+    """
+    This finds the values of the start yr of the animal, the end year of the animal, and the animal chosen.
+    :param START_YR: int
+    :param END_YR: int
+    :param ANIMAL: int
+    :return:
+    """
+    global CURSOR
+    if ANIMAL == 1:
+        ANIMAL = "Bison"
+    elif ANIMAL == 2:
+        ANIMAL = "Elk"
+    elif ANIMAL == 3:
+        ANIMAL = "Moose"
+    elif ANIMAL == 4:
+        ANIMAL = "Deer"
+    DATABEGIN = CURSOR.execute("""
+        SELECT
+            fall_population
+        FROM 
+            Population_data
+        WHERE
+            population_year = ?
+        AND
+            species_name = ?
+    ;""", [START_YR, ANIMAL]).fetchall()
+    for i in range(len(DATABEGIN)):
+        DATABEGIN[i] = DATABEGIN[i][0]
+    print(DATABEGIN)
 # -- OUTPUTS -- #
 
 # --- VARIABLE --- #
@@ -138,12 +182,19 @@ if (pathlib.Path.cwd() / DATAFILE).exists():
 CONNECTION = sqlite3.connect(DATAFILE)
 CURSOR = CONNECTION.cursor()
 
+# ------ MAIN PROGRAM CODE ------ #
 if __name__ == "__main__":
     if FIRST_RUN:
+        DATABASE = setup("Elk_Island_NP_Grassland_Forest_Ungulate_Population_1906-2017_data_reg.txt")
+        setupAll(DATABASE)
+    CHOICE = askChoice()
+    if CHOICE == 1:
+        START_YR, END_YR, ANIMAL = askInfo()
+        findValues(START_YR, END_YR, ANIMAL)
+    if CHOICE == 2:
         pass
-    DATABASE = setup("Elk_Island_NP_Grassland_Forest_Ungulate_Population_1906-2017_data_reg.txt")
-    print(DATABASE)
-
+    if CHOICE == 3:
+        pass
 
 
 
