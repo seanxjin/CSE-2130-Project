@@ -37,13 +37,12 @@ CURSOR.execute("""
 ;""")
 CONNECTION.commit()
 
-print(CURSOR.execute ("""
-    SELECT
-        *
-    FROM
+CURSOR.execute ("""
+    UPDATE
         student
-    ORDER BY
-        last_name
-    LIMIT
-        2
-;""").fetchall())
+    SET 
+        first_name = "AJFDHIIDFNIJOSDNGOSFNGOF"
+    WHERE
+        first_name = "Sean"
+;""").fetchall()
+CONNECTION.commit()
