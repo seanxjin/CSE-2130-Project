@@ -16,9 +16,9 @@ CURSOR.execute("""
     INSERT INTO
         student
     VALUES (
-        "Sean", "Jin", 3
+        ?, ?, ?
     )
-;""")
+;""",["Sean","Jin","HEHE"])
 CONNECTION.commit()
 CURSOR.execute("""
     INSERT INTO

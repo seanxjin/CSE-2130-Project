@@ -170,6 +170,12 @@ def findValues(START_YR, END_YR, ANIMAL):
     for i in range(len(DATABEGIN)):
         DATABEGIN[i] = DATABEGIN[i][0]
     print(DATABEGIN)
+    DATAEND = CURSOR.execute("""
+        SELECT
+            
+    
+    
+    ;""")
 # -- OUTPUTS -- #
 
 # --- VARIABLE --- #
