@@ -52,6 +52,7 @@ def askInfo():
     if START_YR < 1905 or START_YR > 2017 or END_YR < 1905 or END_YR > 2017:
         print("Please enter valid values")
         return askInfo()
+    elif START_YR == 2000 or END_YR == 2000 or
     return START_YR, END_YR, ANIMAL
 def askAdd():
     """
