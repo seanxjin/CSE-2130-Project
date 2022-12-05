@@ -39,8 +39,8 @@ def askInfo():
     Asks the user for the start year, end year, and animal
     :return: str, int
     """
-    START_YR = input("Start Year? ")
-    END_YR = input("End Year? ")
+    START_YR = input("Start Year? (Starting from 1905 up to and including 2017) ")
+    END_YR = input("End Year? (Starting from 1905 up to and including 2017) ")
     ANIMAL = input("Bison (1), Elk (2), Moose (3), Deer (4), or All (5)? ")
     try:
         START_YR = int(START_YR)
@@ -49,7 +49,20 @@ def askInfo():
     except ValueError:
         print("Please enter viable values.")
         return askInfo()
+    if START_YR < 1905 or START_YR > 2017 or END_YR < 1905 or END_YR > 2017:
+        print("Please enter valid values")
+        return askInfo()
     return START_YR, END_YR, ANIMAL
+def askAdd():
+    """
+    Asks the user the information about the new data
+    :return: list --> array
+    """
+    AREA = input("(North) or (South), please put proper capitalization. ")
+    if AREA != "North" or AREA != "South":
+        print("Please enter possible values")
+        return askAdd()
+    POP_YR = input("What is the year")
 # -- PROCESSING -- #
 def setup(FILENAME):
     """
@@ -169,15 +182,50 @@ def findValues(START_YR, END_YR, ANIMAL):
     ;""", [START_YR, ANIMAL]).fetchall()
     for i in range(len(DATABEGIN)):
         DATABEGIN[i] = DATABEGIN[i][0]
+    if len(DATABEGIN) == 1:
+        DATABEGIN.append(0)
     print(DATABEGIN)
     DATAEND = CURSOR.execute("""
         SELECT
-            
-    
-    
-    ;""")
+            fall_population
+        FROM
+            Population_data
+        WHERE
+            population_year = ?
+        AND 
+            species_name = ?
+    ;""", [END_YR, ANIMAL]).fetchall()
+    for i in range(len(DATAEND)):
+        DATAEND[i] = DATAEND[i][0]
+    if len(DATAEND) == 1:
+        DATAEND.append(0)
+    print(DATAEND)
+    return DATABEGIN, DATAEND
+def calculateGrowth(START, END, START_YR, END_YR):
+    """
+    Calculates the
+    :param START: list
+    :param END: list
+    :return: float
+    """
+    ANSWER = ((END[0] + END[1]) - (START[0] + START[1]))/(END_YR - START_YR)
+    return ANSWER
 # -- OUTPUTS -- #
-
+def displayGrowth(ANSWER, START, END, ANIMAL):
+    """
+    Displays the answer of the search population growth
+    :param ANSWER: float
+    :return: none
+    """
+    if ANIMAL == 1:
+        ANIMAL = "Bison"
+    elif ANIMAL == 2:
+        ANIMAL = "Elk"
+    elif ANIMAL == 3:
+        ANIMAL = "Moose"
+    elif ANIMAL == 4:
+        ANIMAL = "Deer"
+    print(f"The growth rate of {ANIMAL} between {START} and {END} is {ANSWER} {ANIMAL}/year.")
 # --- VARIABLE --- #
 DATAFILE = "Population.db"
 
@@ -193,12 +241,17 @@ if __name__ == "__main__":
     if FIRST_RUN:
         DATABASE = setup("Elk_Island_NP_Grassland_Forest_Ungulate_Population_1906-2017_data_reg.txt")
         setupAll(DATABASE)
+    # --- INPUTS --- #
     CHOICE = askChoice()
     if CHOICE == 1:
+        # --- PROCESSING --- #
         START_YR, END_YR, ANIMAL = askInfo()
-        findValues(START_YR, END_YR, ANIMAL)
+        STARTPOP, ENDPOP = findValues(START_YR, END_YR, ANIMAL)
+        ANSWER = calculateGrowth(STARTPOP, ENDPOP, START_YR, END_YR)
+        # --- OUTPUTS --- #
+        displayGrowth(ANSWER, START_YR, END_YR, ANIMAL)
     if CHOICE == 2:
-        pass
+        askAdd()
     if CHOICE == 3:
         pass
 
