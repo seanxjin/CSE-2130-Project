@@ -52,7 +52,8 @@ def askInfo():
     if START_YR < 1905 or START_YR > 2017 or END_YR < 1905 or END_YR > 2017:
         print("Please enter valid values")
         return askInfo()
-    elif START_YR == 2000 or END_YR == 2000 or
+    elif START_YR == 2000 or END_YR == 2000:
+        pass
     return START_YR, END_YR, ANIMAL
 def askAdd():
     """
@@ -63,7 +64,7 @@ def askAdd():
     if AREA != "North" or AREA != "South":
         print("Please enter possible values")
         return askAdd()
-    POP_YR = input("What is the year")
+    POP_YR = input("What is the year ")
 # -- PROCESSING -- #
 def setup(FILENAME):
     """
@@ -156,7 +157,7 @@ def setupAll(DATABASE):
     CONNECTION.commit()
 def findValues(START_YR, END_YR, ANIMAL):
     """
-    This finds the values of the start yr of the animal, the end year of the animal, and the animal chosen.
+    This finds the values of the start yr of the animal, the end year of the animal, and the animal chosen. If all, then there will not be a species name input, it will just get the populations of all that year.
     :param START_YR: int
     :param END_YR: int
     :param ANIMAL: int
@@ -171,46 +172,101 @@ def findValues(START_YR, END_YR, ANIMAL):
         ANIMAL = "Moose"
     elif ANIMAL == 4:
         ANIMAL = "Deer"
-    DATABEGIN = CURSOR.execute("""
-        SELECT
-            fall_population
-        FROM 
-            Population_data
-        WHERE
-            population_year = ?
-        AND
-            species_name = ?
-    ;""", [START_YR, ANIMAL]).fetchall()
-    for i in range(len(DATABEGIN)):
-        DATABEGIN[i] = DATABEGIN[i][0]
-    if len(DATABEGIN) == 1:
-        DATABEGIN.append(0)
-    print(DATABEGIN)
-    DATAEND = CURSOR.execute("""
-        SELECT
-            fall_population
-        FROM
-            Population_data
-        WHERE
-            population_year = ?
-        AND 
-            species_name = ?
-    ;""", [END_YR, ANIMAL]).fetchall()
-    for i in range(len(DATAEND)):
-        DATAEND[i] = DATAEND[i][0]
-    if len(DATAEND) == 1:
-        DATAEND.append(0)
-    print(DATAEND)
+    if ANIMAL < 5:
+        DATABEGIN = CURSOR.execute("""
+            SELECT
+                fall_population
+            FROM 
+                Population_data
+            WHERE
+                population_year = ?
+            AND
+                species_name = ?
+        ;""", [START_YR, ANIMAL]).fetchall()
+        DATAEND = CURSOR.execute("""
+            SELECT
+                fall_population
+            FROM
+                Population_data
+            WHERE
+                population_year = ?
+            AND 
+                species_name = ?
+        ;""", [END_YR, ANIMAL]).fetchall()
+        for i in range(len(DATABEGIN)):
+            DATABEGIN[i] = DATABEGIN[i][0]
+        if DATABEGIN[0] == "NA":
+            DATABEGIN[0] = 0
+        if len(DATABEGIN) == 1:
+            DATABEGIN.append(0)
+        elif DATABEGIN[1] == "NA":
+            DATABEGIN[1] = 0
+        print(DATABEGIN)
+        for i in range(len(DATAEND)):
+            DATAEND[i] = DATAEND[i][0]
+        if DATAEND[0] == "NA":
+            DATAEND[0] = 0
+        if len(DATAEND) == 1:
+            DATAEND.append(0)
+        elif DATAEND[1] == "NA":
+            DATAEND[1] = 0
+        print(DATAEND)
+    else:
+        DATABEGIN = CURSOR.execute("""
+                    SELECT
+                        fall_population
+                    FROM 
+                        Population_data
+                    WHERE
+                        population_year = ?
+                ;""", [START_YR]).fetchall()
+        DATAEND = CURSOR.execute("""
+                    SELECT
+                        fall_population
+                    FROM
+                        Population_data
+                    WHERE
+                        population_year = ?
+                ;""", [END_YR]).fetchall()
+        for i in range(len(DATABEGIN)):
+            DATABEGIN[i] = DATABEGIN[i][0]
+            if DATABEGIN[i] == "NA":
+                DATABEGIN[i] = 0
+        for i in range(len(DATAEND)):
+            DATAEND[i] = DATAEND[i][0]
+            if DATAEND[i] == "NA":
+                DATAEND[i] = 0
+        print(DATABEGIN, DATAEND)
     return DATABEGIN, DATAEND
-def calculateGrowth(START, END, START_YR, END_YR):
+def calculateGrowthIndividual(START, END, START_YR, END_YR, ANIMAL):
     """
-    Calculates the
+    Calculates the population growth for individual animals
     :param START: list
     :param END: list
+    :param: START_YR: int
+    :param: END_YR: int
+    :param: ANIMAL: int
     :return: float
     """
-    ANSWER = ((END[0] + END[1]) - (START[0] + START[1]))/(END_YR - START_YR)
-    return ANSWER
+    if ANIMAL < 5:
+        ANSWER = ((END[0] + END[1]) - (START[0] + START[1]))/(END_YR - START_YR)
+        return ANSWER
+    else:
+        pass
+def calculateGrowthAll(START, END, START_YR, END_YR, ANIMAL):
+    """
+    Calculates the growth of all the animals in that population group.
+    :param START: list
+    :param END: list
+    :param START_YR: int
+    :param END_YR: int
+    :param ANIMAL: int
+    :return: float
+    """
+    if ANIMAL == 5:
+        (sum(END) - sum(START))/(END_YR - START_YR)
+    else:
+        pass
 # -- OUTPUTS -- #
 def displayGrowth(ANSWER, START, END, ANIMAL):
     """
@@ -226,6 +282,8 @@ def displayGrowth(ANSWER, START, END, ANIMAL):
         ANIMAL = "Moose"
     elif ANIMAL == 4:
         ANIMAL = "Deer"
+    elif ANIMAL == 5:
+        ANIMAL = "All Animals"
     print(f"The growth rate of {ANIMAL} between {START} and {END} is {ANSWER} {ANIMAL}/year.")
 # --- VARIABLE --- #
 DATAFILE = "Population.db"
@@ -248,9 +306,8 @@ if __name__ == "__main__":
         # --- PROCESSING --- #
         START_YR, END_YR, ANIMAL = askInfo()
         STARTPOP, ENDPOP = findValues(START_YR, END_YR, ANIMAL)
-        ANSWER = calculateGrowth(STARTPOP, ENDPOP, START_YR, END_YR)
+        calculateGrowthIndividual(STARTPOP, ENDPOP, START_YR, END_YR, ANIMAL)
         # --- OUTPUTS --- #
-        displayGrowth(ANSWER, START_YR, END_YR, ANIMAL)
     if CHOICE == 2:
         askAdd()
     if CHOICE == 3:
