@@ -1,3 +1,3 @@
-START = [1,2,3,4,5,6,7,8]
-
-print(sum(START))
+a = [1,2]
+b = [3,4]
+print((sum(a)-sum(b))/2)

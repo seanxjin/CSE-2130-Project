@@ -52,19 +52,29 @@ def askInfo():
     if START_YR < 1905 or START_YR > 2017 or END_YR < 1905 or END_YR > 2017:
         print("Please enter valid values")
         return askInfo()
-    elif START_YR == 2000 or END_YR == 2000:
-        pass
     return START_YR, END_YR, ANIMAL
 def askAdd():
     """
     Asks the user the information about the new data
     :return: list --> array
     """
-    AREA = input("(North) or (South), please put proper capitalization. ")
-    if AREA != "North" or AREA != "South":
-        print("Please enter possible values")
-        return askAdd()
-    POP_YR = input("What is the year ")
+    DATA = []
+    DATA.append(input("(North) or (South), please put proper capitalization. "))
+    DATA.append(input("What is the year of the population? "))
+    DATA.append(input("What is the survey year? "))
+    DATA.append(input("What is the month of the survey? "))
+    DATA.append(input("What is the day of the survey? "))
+    DATA.append(input("What is the name of your species? (Elk, Bison, Deer, or Moose) "))
+    DATA.append = input("What is the age and sex count? ")
+    DATA.append(input("Adult male count: "))
+    DATA.append(input("Adult female count: "))
+    DATA.append(input("Adult unknown count: "))
+    DATA.append(input("Yearling count: "))
+    DATA.append(input("Calf count: "))
+    DATA.append(input("Survey total: "))
+    DATA.append(input("Sightability correction: "))
+    DATA.append(input("Additional captive count: "))
+    DATA.append(input(""))
 # -- PROCESSING -- #
 def setup(FILENAME):
     """
@@ -164,15 +174,15 @@ def findValues(START_YR, END_YR, ANIMAL):
     :return:
     """
     global CURSOR
-    if ANIMAL == 1:
-        ANIMAL = "Bison"
-    elif ANIMAL == 2:
-        ANIMAL = "Elk"
-    elif ANIMAL == 3:
-        ANIMAL = "Moose"
-    elif ANIMAL == 4:
-        ANIMAL = "Deer"
     if ANIMAL < 5:
+        if ANIMAL == 1:
+            ANIMAL = "Bison"
+        elif ANIMAL == 2:
+            ANIMAL = "Elk"
+        elif ANIMAL == 3:
+            ANIMAL = "Moose"
+        elif ANIMAL == 4:
+            ANIMAL = "Deer"
         DATABEGIN = CURSOR.execute("""
             SELECT
                 fall_population
@@ -201,7 +211,6 @@ def findValues(START_YR, END_YR, ANIMAL):
             DATABEGIN.append(0)
         elif DATABEGIN[1] == "NA":
             DATABEGIN[1] = 0
-        print(DATABEGIN)
         for i in range(len(DATAEND)):
             DATAEND[i] = DATAEND[i][0]
         if DATAEND[0] == "NA":
@@ -210,7 +219,6 @@ def findValues(START_YR, END_YR, ANIMAL):
             DATAEND.append(0)
         elif DATAEND[1] == "NA":
             DATAEND[1] = 0
-        print(DATAEND)
     else:
         DATABEGIN = CURSOR.execute("""
                     SELECT
@@ -236,7 +244,6 @@ def findValues(START_YR, END_YR, ANIMAL):
             DATAEND[i] = DATAEND[i][0]
             if DATAEND[i] == "NA":
                 DATAEND[i] = 0
-        print(DATABEGIN, DATAEND)
     return DATABEGIN, DATAEND
 def calculateGrowthIndividual(START, END, START_YR, END_YR, ANIMAL):
     """
@@ -264,27 +271,29 @@ def calculateGrowthAll(START, END, START_YR, END_YR, ANIMAL):
     :return: float
     """
     if ANIMAL == 5:
-        (sum(END) - sum(START))/(END_YR - START_YR)
+        ANSWER = (sum(END)-sum(START))/(END_YR - START_YR)
+        return ANSWER
     else:
         pass
 # -- OUTPUTS -- #
-def displayGrowth(ANSWER, START, END, ANIMAL):
+def displayGrowth(ANSWER, ANSWER_2, START, END, ANIMAL):
     """
     Displays the answer of the search population growth
     :param ANSWER: float
     :return: none
     """
-    if ANIMAL == 1:
-        ANIMAL = "Bison"
-    elif ANIMAL == 2:
-        ANIMAL = "Elk"
-    elif ANIMAL == 3:
-        ANIMAL = "Moose"
-    elif ANIMAL == 4:
-        ANIMAL = "Deer"
-    elif ANIMAL == 5:
-        ANIMAL = "All Animals"
-    print(f"The growth rate of {ANIMAL} between {START} and {END} is {ANSWER} {ANIMAL}/year.")
+    if ANIMAL < 5:
+        if ANIMAL == 1:
+            ANIMAL = "Bison"
+        elif ANIMAL == 2:
+            ANIMAL = "Elk"
+        elif ANIMAL == 3:
+            ANIMAL = "Moose"
+        elif ANIMAL == 4:
+            ANIMAL = "Deer"
+        print(f"The growth rate of {ANIMAL} between {START} and {END} is {ANSWER} {ANIMAL}/year.")
+    else:
+        print(f"The growth rate of all animals between {START} and {END} is {ANSWER_2} animals/year.")
 # --- VARIABLE --- #
 DATAFILE = "Population.db"
 
@@ -306,8 +315,10 @@ if __name__ == "__main__":
         # --- PROCESSING --- #
         START_YR, END_YR, ANIMAL = askInfo()
         STARTPOP, ENDPOP = findValues(START_YR, END_YR, ANIMAL)
-        calculateGrowthIndividual(STARTPOP, ENDPOP, START_YR, END_YR, ANIMAL)
+        ANSWER = calculateGrowthIndividual(STARTPOP, ENDPOP, START_YR, END_YR, ANIMAL)
+        ANSWER_2 = calculateGrowthAll(STARTPOP, ENDPOP, START_YR, END_YR, ANIMAL)
         # --- OUTPUTS --- #
+        displayGrowth(ANSWER,ANSWER_2, START_YR, END_YR, ANIMAL)
     if CHOICE == 2:
         askAdd()
     if CHOICE == 3:
