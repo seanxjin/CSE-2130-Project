@@ -106,7 +106,28 @@ def askAdd():
     else:
         print("Enter valid values")
         return askAdd()
-     # -- PROCESSING -- #
+def askViewData():
+    """
+    Asks the user the year and species of the animal
+    :return: List --> array
+    """
+    YR = input("What is the year? ")
+    SPECIES = input("What is the species? (Elk, Moose, Deer, Bison) ")
+    try:
+        YR = int(YR)
+    except ValueError:
+        print("Please enter a valid value.")
+        return askViewData()
+    if SPECIES == "Elk" or SPECIES == "Moose" or SPECIES == "Bison" or SPECIES == "Deer":
+        return YR, SPECIES
+    else:
+        print("Enter valid values.")
+        return askViewData()
+# -- PROCESSING -- #
+def checkBison():
+    """
+    :return:
+    """
 def setup(FILENAME):
     """
     Opens the file and extracts the contents of the file, joins the commas in the comments
@@ -196,6 +217,24 @@ def setupAll(DATABASE):
                 )
         ;""", DATABASE[i])
     CONNECTION.commit()
+def findInfo(YR, SPECIES):
+    """
+    Finds the data the user has requested
+    :param YR: int
+    :param SPECIES: str
+    :return: list
+    """
+    global CURSOR
+    DATA  = CURSOR.execute("""
+            SELECT
+                *
+            FROM
+                Population_data
+            WHERE
+                population_year = ?
+            AND 
+                species_name = ?
+        ;""", [YR, SPECIES])
 def findValues(START_YR, END_YR, ANIMAL):
     """
     This finds the values of the start yr of the animal, the end year of the animal, and the animal chosen. If all, then there will not be a species name input, it will just get the populations of all that year.
@@ -204,7 +243,7 @@ def findValues(START_YR, END_YR, ANIMAL):
     :param ANIMAL: int
     :return:
     """
-    global CURSOR
+    global CURSOR, CHOICE
     if ANIMAL < 5:
         if ANIMAL == 1:
             ANIMAL = "Bison"
@@ -234,6 +273,8 @@ def findValues(START_YR, END_YR, ANIMAL):
             AND 
                 species_name = ?
         ;""", [END_YR, ANIMAL]).fetchall()
+        if DATABEGIN == []:
+            DATABEGIN = [(0,), (0,)]
         for i in range(len(DATABEGIN)):
             DATABEGIN[i] = DATABEGIN[i][0]
         if DATABEGIN[0] == "NA":
@@ -242,6 +283,8 @@ def findValues(START_YR, END_YR, ANIMAL):
             DATABEGIN.append(0)
         elif DATABEGIN[1] == "NA":
             DATABEGIN[1] = 0
+        if DATAEND == []:
+            DATAEND = [(0,), (0,)]
         for i in range(len(DATAEND)):
             DATAEND[i] = DATAEND[i][0]
         if DATAEND[0] == "NA":
@@ -250,6 +293,8 @@ def findValues(START_YR, END_YR, ANIMAL):
             DATAEND.append(0)
         elif DATAEND[1] == "NA":
             DATAEND[1] = 0
+        return DATABEGIN, DATAEND
+
     else:
         DATABEGIN = CURSOR.execute("""
                     SELECT
@@ -275,7 +320,7 @@ def findValues(START_YR, END_YR, ANIMAL):
             DATAEND[i] = DATAEND[i][0]
             if DATAEND[i] == "NA":
                 DATAEND[i] = 0
-    return DATABEGIN, DATAEND
+        return DATABEGIN, DATAEND
 def calculateGrowthIndividual(START, END, START_YR, END_YR, ANIMAL):
     """
     Calculates the population growth for individual animals
@@ -378,18 +423,23 @@ if __name__ == "__main__":
     # --- INPUTS --- #
     CHOICE = askChoice()
     if CHOICE == 1:
-        # --- PROCESSING --- #
+        # --- INPUTS
         START_YR, END_YR, ANIMAL = askInfo()
+        # --- PROCESSING --- #
         STARTPOP, ENDPOP = findValues(START_YR, END_YR, ANIMAL)
         ANSWER = calculateGrowthIndividual(STARTPOP, ENDPOP, START_YR, END_YR, ANIMAL)
         ANSWER_2 = calculateGrowthAll(STARTPOP, ENDPOP, START_YR, END_YR, ANIMAL)
         # --- OUTPUTS --- #
         displayGrowth(ANSWER,ANSWER_2, START_YR, END_YR, ANIMAL)
     if CHOICE == 2:
+        # --- INPUTS --- #
         DATA = askAdd()
+        # --- PROCESSING --- #
         addNewRow(DATA)
+        # --- OUTPUT --- #
+        print("Data successfully added!")
     if CHOICE == 3:
-        pass
+        YR, SPECIES = askViewData()
 
 
 

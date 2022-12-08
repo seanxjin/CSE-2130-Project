@@ -1,3 +1,2 @@
-DATA = input(" ")
-if DATA.isnumeric():
-    print(DATA)
+DATA = []
+print(type(DATA))
