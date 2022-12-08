@@ -59,23 +59,54 @@ def askAdd():
     :return: list --> array
     """
     DATA = []
-    DATA.append(input("(North) or (South), please put proper capitalization. "))
-    DATA.append(input("What is the year of the population? "))
-    DATA.append(input("What is the survey year? "))
-    DATA.append(input("What is the month of the survey? "))
-    DATA.append(input("What is the day of the survey? "))
-    DATA.append(input("What is the name of your species? (Elk, Bison, Deer, or Moose) "))
-    DATA.append = input("What is the age and sex count? ")
-    DATA.append(input("Adult male count: "))
-    DATA.append(input("Adult female count: "))
-    DATA.append(input("Adult unknown count: "))
-    DATA.append(input("Yearling count: "))
-    DATA.append(input("Calf count: "))
-    DATA.append(input("Survey total: "))
-    DATA.append(input("Sightability correction: "))
-    DATA.append(input("Additional captive count: "))
-    DATA.append(input(""))
-# -- PROCESSING -- #
+    AREA = (input("(North) or (South), please put proper capitalization. "))
+    POPYR = (input("What is the year of the population? "))
+    SURVYR = (input("What is the survey year? "))
+    SURVMON = (input("What is the month of the survey? "))
+    SURVDAY = (input("What is the day of the survey? "))
+    SPECIES = (input("What is the name of your species? Elk, Bison, Deer, or Moose (Please input proper capitalization) "))
+    AGE = input("What is the age and sex count? ")
+    ADULTMALE = (input("Adult male count: "))
+    ADULTFEMALE = (input("Adult female count: "))
+    ADULTUNKNOWN = (input("Adult unknown count: "))
+    YEARLING = (input("Yearling count: "))
+    CALF = (input("Calf count: "))
+    SURVTOT = (input("Survey total: "))
+    SIGHTCORRECT = (input("Sightability correction: "))
+    ADDITIONCAPTIVE = (input("Additional captive count: "))
+    ANIMALREMOVE = (input("Animals removed prior: "))
+    FALLPOP = input("Fall population: ")
+    COMMENT = input("Comment: ")
+    ESTIMATE = input("Estimate Method: ")
+    if AREA == "North" or AREA == "South" or SPECIES == "Elk" or SPECIES == "Bison" or SPECIES == "Deer" or SPECIES == "Moose":
+        if POPYR.isnumeric() and SURVYR.isnumeric() and SURVMON.isnumeric() and SURVDAY.isnumeric() and AGE.isnumeric() and ADULTMALE.isnumeric() and ADULTFEMALE.isnumeric() and ADULTUNKNOWN.isnumeric() and YEARLING.isnumeric() and CALF.isnumeric() and SURVTOT.isnumeric() and SIGHTCORRECT.isnumeric() and ADDITIONCAPTIVE.isnumeric() and ANIMALREMOVE.isnumeric() and FALLPOP.isnumeric():
+            DATA.append(AREA)
+            DATA.append(POPYR)
+            DATA.append(SURVYR)
+            DATA.append(SURVMON)
+            DATA.append(SURVDAY)
+            DATA.append(SPECIES)
+            DATA.append(AGE)
+            DATA.append(ADULTMALE)
+            DATA.append(ADULTFEMALE)
+            DATA.append(ADULTUNKNOWN)
+            DATA.append(YEARLING)
+            DATA.append(CALF)
+            DATA.append(SURVTOT)
+            DATA.append(SIGHTCORRECT)
+            DATA.append(ADDITIONCAPTIVE)
+            DATA.append(ANIMALREMOVE)
+            DATA.append(FALLPOP)
+            DATA.append(COMMENT)
+            DATA.append(ESTIMATE)
+            return DATA
+        else:
+            print("Enter valid values")
+            return askAdd()
+    else:
+        print("Enter valid values")
+        return askAdd()
+     # -- PROCESSING -- #
 def setup(FILENAME):
     """
     Opens the file and extracts the contents of the file, joins the commas in the comments
@@ -275,6 +306,41 @@ def calculateGrowthAll(START, END, START_YR, END_YR, ANIMAL):
         return ANSWER
     else:
         pass
+def addNewRow(DATA):
+    """
+    Adds the data from the returned values of the list into the sqlite table
+    :param DATA: list
+    :return: none
+    """
+    global CURSOR, CONNECTION
+    CURSOR.execute("""
+        INSERT INTO
+            Population_data (
+                    area_of_park,
+                    population_year,
+                    survey_year,
+                    survey_month,
+                    survey_day,
+                    species_name,
+                    unknown_age_sex,
+                    adult_male_count,
+                    adult_female_count,
+                    adult_unknown_count,
+                    yearling_count,
+                    calf_count,
+                    survey_total,
+                    sightability_correction,
+                    additional_captive_count,
+                    animals_removed_prior, 
+                    fall_population,
+                    comment,
+                    estimate_method
+                    )
+        VALUES (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            )
+    ;""", DATA)
+    CONNECTION.commit()
 # -- OUTPUTS -- #
 def displayGrowth(ANSWER, ANSWER_2, START, END, ANIMAL):
     """
@@ -320,7 +386,8 @@ if __name__ == "__main__":
         # --- OUTPUTS --- #
         displayGrowth(ANSWER,ANSWER_2, START_YR, END_YR, ANIMAL)
     if CHOICE == 2:
-        askAdd()
+        DATA = askAdd()
+        addNewRow(DATA)
     if CHOICE == 3:
         pass
 
