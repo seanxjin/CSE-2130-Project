@@ -6,6 +6,7 @@ date-created: 2022-11-25
 
 import pathlib
 import sqlite3
+from tabulate import tabulate
 
 # --- SUBROUNTINE --- #
 
@@ -19,7 +20,7 @@ def askChoice():
 Please choose an option:
     1. Search Population Growth
     2. Add New Year Data
-    3. Delete Data
+    3. View data in a specific species and year
     4. Exit
     """)
     CHOICE = input("> ")
@@ -124,10 +125,6 @@ def askViewData():
         print("Enter valid values.")
         return askViewData()
 # -- PROCESSING -- #
-def checkBison():
-    """
-    :return:
-    """
 def setup(FILENAME):
     """
     Opens the file and extracts the contents of the file, joins the commas in the comments
@@ -155,6 +152,7 @@ def setup(FILENAME):
             for j in range(len(TEXTLIST[i])):
                 TEXTLIST[i][j] = TEXTLIST[i][j].split(',')
                 TEXTLIST[i] = TEXTLIST[i][0]
+    TEXTLIST[493][5] = "Bison"
     return TEXTLIST
 def setupAll(DATABASE):
     """
@@ -225,16 +223,35 @@ def findInfo(YR, SPECIES):
     :return: list
     """
     global CURSOR
-    DATA  = CURSOR.execute("""
+    DATA = CURSOR.execute("""
             SELECT
-                *
+                area_of_park,
+                population_year,
+                survey_year,
+                survey_month,
+                survey_day,
+                species_name,
+                unknown_age_sex,
+                adult_male_count,
+                adult_female_count,
+                adult_unknown_count,
+                yearling_count,
+                calf_count,
+                survey_total,
+                sightability_correction,
+                additional_captive_count,
+                animals_removed_prior, 
+                fall_population,
+                comment,
+                estimate_method
             FROM
                 Population_data
             WHERE
                 population_year = ?
             AND 
                 species_name = ?
-        ;""", [YR, SPECIES])
+        ;""", [YR, SPECIES]).fetchall()
+    return DATA
 def findValues(START_YR, END_YR, ANIMAL):
     """
     This finds the values of the start yr of the animal, the end year of the animal, and the animal chosen. If all, then there will not be a species name input, it will just get the populations of all that year.
@@ -405,7 +422,15 @@ def displayGrowth(ANSWER, ANSWER_2, START, END, ANIMAL):
         print(f"The growth rate of {ANIMAL} between {START} and {END} is {ANSWER} {ANIMAL}/year.")
     else:
         print(f"The growth rate of all animals between {START} and {END} is {ANSWER_2} animals/year.")
+def displayData(DATA):
+    """
+    Displays the data in a column and row form using the import function tabulate... I tried using pandas, but then realized tabulate was just much better and user friendly to use.
+    :param DATA: List --> 2d array
+    :return: none
+    """
+    print(tabulate(DATA, tablefmt='rst'))
 # --- VARIABLE --- #
+START = '1'
 DATAFILE = "Population.db"
 
 FIRST_RUN = True
@@ -417,29 +442,42 @@ CURSOR = CONNECTION.cursor()
 
 # ------ MAIN PROGRAM CODE ------ #
 if __name__ == "__main__":
-    if FIRST_RUN:
-        DATABASE = setup("Elk_Island_NP_Grassland_Forest_Ungulate_Population_1906-2017_data_reg.txt")
-        setupAll(DATABASE)
-    # --- INPUTS --- #
-    CHOICE = askChoice()
-    if CHOICE == 1:
-        # --- INPUTS
-        START_YR, END_YR, ANIMAL = askInfo()
-        # --- PROCESSING --- #
-        STARTPOP, ENDPOP = findValues(START_YR, END_YR, ANIMAL)
-        ANSWER = calculateGrowthIndividual(STARTPOP, ENDPOP, START_YR, END_YR, ANIMAL)
-        ANSWER_2 = calculateGrowthAll(STARTPOP, ENDPOP, START_YR, END_YR, ANIMAL)
-        # --- OUTPUTS --- #
-        displayGrowth(ANSWER,ANSWER_2, START_YR, END_YR, ANIMAL)
-    if CHOICE == 2:
+    while START == '1':
+        if FIRST_RUN:
+            DATABASE = setup("Elk_Island_NP_Grassland_Forest_Ungulate_Population_1906-2017_data_reg.txt")
+            setupAll(DATABASE)
         # --- INPUTS --- #
-        DATA = askAdd()
-        # --- PROCESSING --- #
-        addNewRow(DATA)
-        # --- OUTPUT --- #
-        print("Data successfully added!")
-    if CHOICE == 3:
-        YR, SPECIES = askViewData()
+        CHOICE = askChoice()
+        if CHOICE == 1:
+            # --- INPUTS
+            START_YR, END_YR, ANIMAL = askInfo()
+            # --- PROCESSING --- #
+            STARTPOP, ENDPOP = findValues(START_YR, END_YR, ANIMAL)
+            ANSWER = calculateGrowthIndividual(STARTPOP, ENDPOP, START_YR, END_YR, ANIMAL)
+            ANSWER_2 = calculateGrowthAll(STARTPOP, ENDPOP, START_YR, END_YR, ANIMAL)
+            # --- OUTPUTS --- #
+            displayGrowth(ANSWER,ANSWER_2, START_YR, END_YR, ANIMAL)
+            START = input("Do you want to play again? (1 for yes) (any other key for no) ")
+        elif CHOICE == 2:
+            # --- INPUTS --- #
+            DATA = askAdd()
+            # --- PROCESSING --- #
+            addNewRow(DATA)
+            # --- OUTPUT --- #
+            print("Data successfully added!")
+            START = input("Do you want to play again? (1 for yes) (any other key for no) ")
+        elif CHOICE == 3:
+            # --- INPUTS --- #
+            YR, SPECIES = askViewData()
+            # --- PROCESSING --- #
+            DATA = findInfo(YR, SPECIES)
+            # --- OUTPUT
+            displayData(DATA)
+            START = input("Do you want to play again? (1 for yes) (any other key for no) ")
+        else:
+            exit()
+    else:
+        exit()
 
 
 
