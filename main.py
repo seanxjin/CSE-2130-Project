@@ -428,7 +428,7 @@ def displayData(DATA):
     :param DATA: List --> 2d array
     :return: none
     """
-    print(tabulate(DATA, tablefmt='rst'))
+    print(tabulate(DATA, tablefmt="plain"))
 # --- VARIABLE --- #
 START = '1'
 DATAFILE = "Population.db"
