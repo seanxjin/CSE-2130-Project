@@ -419,9 +419,9 @@ def displayGrowth(ANSWER, ANSWER_2, START, END, ANIMAL):
             ANIMAL = "Moose"
         elif ANIMAL == 4:
             ANIMAL = "Deer"
-        print(f"The growth rate of {ANIMAL} between {START} and {END} is {ANSWER} {ANIMAL}/year.")
+        print(f"The growth rate of {ANIMAL} between {START} and {END} is {round(ANSWER,2)} {ANIMAL}/year.")
     else:
-        print(f"The growth rate of all animals between {START} and {END} is {ANSWER_2} animals/year.")
+        print(f"The growth rate of all animals between {START} and {END} is {round(ANSWER_2,2)} animals/year.")
 def displayData(DATA):
     """
     Displays the data in a column and row form using the import function tabulate... I tried using pandas, but then realized tabulate was just much better and user friendly to use.
